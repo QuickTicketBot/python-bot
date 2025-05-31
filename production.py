@@ -24,16 +24,80 @@ from jafri_chromedriver_installer import installer
 import pyautogui
 import platform
 
+def setup_proxy():
+    PROXIES = [
+       "22347aaf0f62e90dcd23__cr.it:c1929c8f6c32c506@gw.dataimpulse.com:823",
+    ]
+    proxy = random.choice(PROXIES)
+    auth, ip_port = proxy.split('@')
+    PROXY_USER, PROXY_PASS = auth.split(':')
+    PROXY_HOST, PROXY_PORT = ip_port.split(':')
+
+    manifest_json = """
+    {
+        "version": "1.0.0",
+        "manifest_version": 2,
+        "name": "Chrome Proxy",
+        "permissions": [
+            "proxy", "tabs", "unlimitedStorage", "storage",
+            "<all_urls>", "webRequest", "webRequestBlocking"
+        ],
+        "background": {
+            "scripts": ["background.js"]
+        }
+    }
+    """
+
+    background_js = f"""
+    var config = {{
+        mode: "fixed_servers",
+        rules: {{
+            singleProxy: {{
+                scheme: "http",
+                host: "{PROXY_HOST}",
+                port: parseInt({PROXY_PORT})
+            }},
+            bypassList: ["localhost"]
+        }}
+    }};
+    chrome.proxy.settings.set({{value: config, scope: "regular"}}, function() {{}});
+    function callbackFn(details) {{
+        return {{
+            authCredentials: {{
+                username: "{PROXY_USER}",
+                password: "{PROXY_PASS}"
+            }}
+        }};
+    }}
+    chrome.webRequest.onAuthRequired.addListener(
+        callbackFn,
+        {{urls: ["<all_urls>"]}},
+        ['blocking']
+    );
+    """
+
+    ext_dir = 'proxy_auth_extension'
+    os.makedirs(ext_dir, exist_ok=True)
+    with open(os.path.join(ext_dir, 'manifest.json'), 'w') as f:
+        f.write(manifest_json)
+    with open(os.path.join(ext_dir, 'background.js'), 'w') as f:
+        f.write(background_js)
+
+    return ext_dir
+
 
 def load_driver():
     try:
 
         options = webdriver.ChromeOptions()
 
+
+        ext_dir = setup_proxy()
+
         extension_path = os.path.join(os.getcwd(), "CapMonst_extension")
         print(f"Loading extension from: {extension_path}")
-        options.add_argument(f'--load-extension=/var/www/python-bot/CapMonst_extension')
-        options.add_argument(f'--disable-extensions-except=/var/www/python-bot/CapMonst_extension')
+        options.add_argument(f'--load-extension=/var/www/python-bot/CapMonst_extension,{os.path.abspath(ext_dir)}')
+        options.add_argument(f'--disable-extensions-except=/var/www/python-bot/CapMonst_extension,{os.path.abspath(ext_dir)}')
 
         # options.add_argument(f'load-extension={extension_path}')  # Note the '--' prefix
         # options.add_argument(f'load-extension={os.getcwd()}/CapMonst_extension')
@@ -51,13 +115,13 @@ def load_driver():
 
         options.add_argument('--disable-gpu')
         options.add_argument('--disable-software-rasterizer')
-        options.add_argument(f'--user-data-dir=/tmp/chrome-profile')
+        options.add_argument(f'--user-data-dir=/tmp/chrome-profile-new')
         # Add consistent window size
         options.add_experimental_option('excludeSwitches', ['enable-logging', 'enable-automation'])  # Removes navigator.webdriver flag
         installer.install_chromedriver()
         driver = webdriver.Chrome(options=options)
 
-
+        driver.get("https://whatismyipaddress.com/")
         wait(5)
         # # chrome.exe --remote-debugging-port=9250 --user-data-dir=remote-profile
         # options = Options()
@@ -135,11 +199,31 @@ def get_data():
         print_log(custom_traceback(traceback.format_exc()))
 
 
+# def add_extenstion_api_key(driver, api_key):
+#     driver.get("chrome-extension://pabjfbciaedomjjfelfafejkppknjleh/popup.html")
+#     WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.TAG_NAME, "input")))
+
+#     driver.find_element(By.ID, "client-key-input").send_keys(api_key)
+#     wait(5)
+#     driver.find_element(By.ID, "client-key-save-btn").click()
+#     wait(2)
+
+
 def add_extenstion_api_key(driver, api_key):
     driver.get("chrome-extension://pabjfbciaedomjjfelfafejkppknjleh/popup.html")
     WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.TAG_NAME, "input")))
-    driver.find_element(By.ID, "client-key-input").send_keys(api_key)
-    wait(1)
+
+    input_elem = driver.find_element(By.ID, "client-key-input")
+    existing_value = input_elem.get_attribute("value")
+
+    # Check if the existing value is already the same as the new API key
+    if existing_value == api_key:
+        print("API key already exists. No need to update.")
+        return
+
+    input_elem.clear()
+    input_elem.send_keys(api_key)
+    wait(5)
     driver.find_element(By.ID, "client-key-save-btn").click()
     wait(2)
 
