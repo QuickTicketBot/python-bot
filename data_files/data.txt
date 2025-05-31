@@ -1,0 +1,33 @@
+date_to_book==2025-06-04
+full_price==9
+r_f_rap_mic_card==
+r_f_rap_museo_ebraico_roma==
+r_f_rap_villa_farnesina==
+reduced_fair==
+free_roma_pass==
+f_a_t_r_disabled_person==
+f_a_t_r_person_accompanying_the_disabled_person==
+f_a_t_r_italian_teacher_with_miur_module==
+f_a_t_r_fine_arts_teacher_sutdent==
+f_a_t_r_cultural_heritage_teacher_student==
+f_a_t_r_journalist==
+f_a_t_r_tourist_interpreter==
+f_a_t_r_iccrom_member==
+f_a_t_r_icom_members_individual==
+f_a_t_r_ministry_of_culture_staff==
+f_a_t_r_eu_teachers_attested_cultural_subjects==
+free_addition_under_18==
+group_leader==
+guide_pass==
+tour_guide==
+start_time_input==11:00 AM
+end_time_input==8:01 PM
+api_key==58742ddc39b12f0a1dfb8431e7e380b4
+url==https://ticketing.colosseo.it/en/eventi/24h-only-arena-gruppi
+
+
+-----------------NOTES-----------------
+--> date_to_book should be in format as it is on site like YYYY-MM-DD
+--> The input options should be empty if you don't want to input those option values or enter the values in numeric like 1 or 20 etc...
+--> You need to enter the start and end time range as H:MM AM/PM so it'll click on the time slot within this range
+--> Enter url like https://ticketing.colosseo.it/en/eventi/24h-colosseo-foro-romano-palatino-gruppi , Bot will add the date itself with above date_to_book
