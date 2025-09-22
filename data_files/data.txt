@@ -1,4 +1,4 @@
-date_to_book==2025-06-04
+date_to_book==2025-09-23
 full_price==9
 r_f_rap_mic_card==
 r_f_rap_museo_ebraico_roma==
@@ -24,8 +24,6 @@ start_time_input==11:00 AM
 end_time_input==8:01 PM
 api_key==58742ddc39b12f0a1dfb8431e7e380b4
 url==https://ticketing.colosseo.it/en/eventi/24h-only-arena-gruppi
-
-
 -----------------NOTES-----------------
 --> date_to_book should be in format as it is on site like YYYY-MM-DD
 --> The input options should be empty if you don't want to input those option values or enter the values in numeric like 1 or 20 etc...
